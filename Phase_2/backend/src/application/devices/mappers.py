@@ -1,0 +1,14 @@
+from src.domain.devices.entity import Device
+from src.application.devices.dto import DeviceDto
+
+def map_device_to_dto(device: Device) -> DeviceDto:
+    if device.id is None:
+        raise ValueError("Cannot map unpersisted device to DTO. ")
+    return DeviceDto(
+        id=device.id,
+        device_type=device.device_type,
+        role=device.role,
+        device_family=device.device_family,
+        display_name=device.display_name,
+        default_config=device.default_config,
+    )

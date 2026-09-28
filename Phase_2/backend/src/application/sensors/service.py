@@ -1,5 +1,5 @@
-from src.domain.sensors.creators import get_sensor_creator
-from src.domain.sensors.entity import Sensor
+from src.domain.devices.creators import get_sensor_creator
+from src.domain.devices.entity import Sensor
 from src.infrastructure.persistence.device_repository import DeviceRepository
 
 class SensorService:

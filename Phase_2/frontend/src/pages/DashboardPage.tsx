@@ -1,4 +1,5 @@
 import { SensorList } from "../features/sensors/SensorList";
+import { DeviceList } from "../components/devices/DeviceList";
 
 export function DashboardPage() {
   const otherSections = [
@@ -15,6 +16,9 @@ export function DashboardPage() {
         <h1 className="text-2xl font-bold text-slate-900">Greenhouse Dashboard</h1>
         <p className="text-sm text-slate-500">Monitor and manage greenhouse devices and operations.</p>
       </div>
+      <section id="devices" className="bg-white p-6 rounded-xl border border-slate-200 shadow-xs">
+        <DeviceList />
+      </section>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <section id="sensors" className="bg-white p-6 rounded-xl border border-slate-200 shadow-xs">

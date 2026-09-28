@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from src.domain.sensors.entity import Sensor
+from src.domain.devices.entity import Sensor
 
 class SensorCreator(ABC):
     @abstractmethod
