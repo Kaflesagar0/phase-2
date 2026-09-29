@@ -4,6 +4,7 @@ from scalar_fastapi import get_scalar_api_reference
 from src.infrastructure.settings import settings
 from src.interfaces.api.health import router as health_router
 from src.interfaces.api.devices import router as devices_router
+from src.interfaces.api.locations import router as locations_router, devices_router as location_devices_router
 ##from src.interfaces.api.sensors import router as sensors_router
 
 
@@ -47,3 +48,5 @@ async def scalar_html():
 
 # Include API routes
 app.include_router(health_router)
+app.include_router(locations_router)
+app.include_router(location_devices_router)

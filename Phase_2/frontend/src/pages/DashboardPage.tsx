@@ -1,5 +1,6 @@
 import { SensorList } from "../features/sensors/SensorList";
 import { DeviceList } from "../components/devices/DeviceList";
+import { LocationConfigWizard } from "../components/config/LocationConfigWizard";
 
 export function DashboardPage() {
   const otherSections = [
@@ -18,7 +19,10 @@ export function DashboardPage() {
       </div>
       <section id="devices" className="bg-white p-6 rounded-xl border border-slate-200 shadow-xs">
         <DeviceList />
-      </section>
+      </section><section id="config" className="bg-white p-6 rounded-xl border border-slate-200 shadow-xs lg:col-span-3">
+  <LocationConfigWizard />
+</section>
+
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <section id="sensors" className="bg-white p-6 rounded-xl border border-slate-200 shadow-xs">
