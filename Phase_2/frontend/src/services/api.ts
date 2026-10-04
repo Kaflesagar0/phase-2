@@ -1,3 +1,5 @@
+
+
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
 
 // --- Types & DTOs ---
@@ -56,6 +58,15 @@ export interface ZoneDeviceDto {
   display_name: string | null;
   zone_id: string | null;
   location_id: string | null;
+}
+
+export interface ReadingDto{
+  id: string;
+  device_id: string;
+  value: number;
+  unit: string;
+  source: string;
+  recorded_at: string;
 }
 
 // --- API Functions ---
@@ -214,4 +225,44 @@ export async function assignDeviceZone(deviceId: string, zoneId: string | null):
     body: JSON.stringify({ zone_id: zoneId }),
   });
   if (!res.ok) throw new Error("Failed to assign device zone");
+}
+
+export async function triggerSensorRead(deviceId: string, useVendor: boolean = false): Promise<ReadingDto> {
+  const response = await fetch(`${API_BASE_URL}/api/sensors/${deviceId}/read?use_vendor=${useVendor}`, {
+    method: "POST",
+  });
+  if (!response.ok)  {
+    const errorData = await response.json().catch(() => ({ detail: "Failed to trigger sensor read"}));
+    throw new Error(errorData.detail || "Failed to trigger sensor read");
+
+  }
+  return response.json();
+}
+
+export async function fetchSensorReadings(deviceId: string, limit: number = 1): Promise<ReadingDto[]> {
+  const response = await fetch(`${API_BASE_URL}/api/sensors/${deviceId}/readings?limit=${limit}`);
+  if (!response.ok) {
+    throw new Error("Failed to fetch sensor readings");
+
+  }
+  return response.json();
+}
+
+export async function updateDeviceSampling(
+  deviceId: string,
+  samplingIntervalSeconds: number,
+  trackingEnabled: boolean
+): Promise<void> {
+  const response = await fetch(`${API_BASE_URL}/api/devices/${deviceId}/sampling`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json"},
+    body: JSON.stringify({
+      sampling_interval_seconds: samplingIntervalSeconds,
+      tracking_enabled: trackingEnabled,
+    }),
+  });
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({detail: "Failed to update sampling settings."}));
+    throw new Error(errorData.detail || "Failed to update sampling settings");
+  }
 }

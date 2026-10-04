@@ -5,8 +5,8 @@ from uuid import UUID
 class Device:
     device_type: str    
     display_name: str
-    device_family: str = "simulation"
     role: str ="sensor"
+    device_family: str = "simulation"
     default_config: dict = field(default_factory=dict)
     id: UUID | None = None
 

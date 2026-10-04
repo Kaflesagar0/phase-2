@@ -1,9 +1,38 @@
 import uuid
 from datetime import datetime
-from sqlalchemy import String, DateTime, Numeric, text, ForeignKey
+from sqlalchemy import String, DateTime, Boolean, Numeric, Integer, text, ForeignKey, Index
 from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from src.infrastructure.persistence.base import Base
+
+
+class ReadingRow(Base):
+    __tablename__ = "sensor_readings"
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        primary_key=True,
+        default=uuid.uuid4,
+        server_default=text("gen_random_uuid()"),
+    )
+    device_id: Mapped[uuid.UUID] =mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("devices.id" , ondelete="CASCADE"),
+        nullable=False,
+    )
+    value: Mapped[float] = mapped_column(Numeric(10, 4), nullable=False)
+    unit: Mapped[str] = mapped_column(String(32), nullable=False)
+    source: Mapped[str] = mapped_column(String(32), nullable=False)
+    recorded_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        server_default=text("now()"),
+        nullable=False,
+    )
+
+    device: Mapped["DeviceRow"] = relationship("DeviceRow", back_populates="readings")
+
+    #Index for latest-row queries and history
+Index("ix_sensor_readings_device_recorded", ReadingRow.device_id, ReadingRow.recorded_at.desc())
 
 class LocationRow(Base):
     __tablename__ = "locations"
@@ -89,3 +118,13 @@ class DeviceRow(Base):
 
     # Relationship back to zone
     zone: Mapped["ZoneRow | None"] = relationship("ZoneRow", back_populates="devices")
+
+    sampling_interval_seconds: Mapped[int] = mapped_column(
+        Integer, nullable=False, server_default=text("300")
+    )
+    tracking_enabled: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, server_default=text("true")
+    )
+    readings: Mapped[list["ReadingRow"]] = relationship(
+        "ReadingRow", back_populates="device", cascade="all, delete-orphan"
+    )
