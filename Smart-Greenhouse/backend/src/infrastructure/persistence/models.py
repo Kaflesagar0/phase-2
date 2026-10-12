@@ -80,7 +80,36 @@ class ZoneRow(Base):
     location: Mapped["LocationRow"] = relationship("LocationRow", back_populates="zones")
     devices: Mapped[list["DeviceRow"]] = relationship("DeviceRow", back_populates="zone")
 
+class AutomationRuleRow(Base):
+    __tablename__ = "automation_rules"
 
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        primary_key=True,
+        default=uuid.uuid4,
+        server_default=text("gen_random_uuid()"),
+    )
+    location_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("locations.id", ondelete="CASCADE"),
+        nullable=False,
+        unique=True,
+        index=True,
+    )
+    strategy_key: Mapped[str] = mapped_column(String(64), nullable=False, default="conservative")
+    parameters: Mapped[dict] = mapped_column(JSONB, default=dict, nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        server_default=text("now()"),
+        onupdate=text("now()"),
+        nullable=False,
+
+    )
+    location: Mapped["LocationRow"] = relationship("LocationRow")
+
+
+
+    
 class DeviceRow(Base):
     __tablename__ = "devices"
 

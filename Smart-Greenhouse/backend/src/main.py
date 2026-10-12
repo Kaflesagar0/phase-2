@@ -6,12 +6,13 @@ from src.interfaces.api.health import router as health_router
 from src.interfaces.api.devices import router as devices_router
 from src.interfaces.api.locations import router as locations_router, devices_router as location_devices_router
 from src.interfaces.api.sensors import router as sensors_readings_router, devices_router as device_sampling_router 
-
+from scalar_fastapi import get_scalar_api_reference
+from src.interfaces.api.automation import router as automation_router
 
 
 app = FastAPI(
     title="Smart Greenhouse API",
-    version="0.1.0",
+    version="0.6.0",
     docs_url=None,    # Explicitly disables /docs (Swagger)
     redoc_url=None,   # Explicitly disables /redoc
 )
@@ -52,3 +53,4 @@ app.include_router(locations_router)
 app.include_router(location_devices_router)
 app.include_router(sensors_readings_router)
 app.include_router(device_sampling_router)
+app.include_router(automation_router)
