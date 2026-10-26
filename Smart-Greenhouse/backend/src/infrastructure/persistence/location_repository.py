@@ -1,7 +1,7 @@
 from uuid import UUID
 from sqlalchemy.orm import Session
 from src.domain.locations.entity import Location, Zone, LocationConfig
-from src.infrastructure.persistence.models import LocationRow, ZoneRow
+from src.infrastructure.persistence.models import LocationRow, ZoneRow, DeviceRow
 
 class LocationRepository:
     def __init__(self, db: Session):
@@ -71,3 +71,11 @@ class LocationRepository:
             zones=zones,
         )
         return LocationConfig(location=location)
+
+    def get_location_with_zones(self, location_id: UUID) -> LocationRow | None:
+        return self.db.query(LocationRow).filter(LocationRow.id == location_id).first()
+
+    def get_assigned_devices_for_location(self, location_id: UUID) -> list[DeviceRow]:
+        return (
+            self.db.query(DeviceRow).filter(DeviceRow.location_id == location_id, DeviceRow.zone_id.isnot(None)).all()
+        )

@@ -73,3 +73,6 @@ class AutomationRepository:
                 )
             )
         return contexts
+
+    def get_rule_by_location(self, location_id: UUID) -> AutomationRuleRow | None:
+        return self.db.query(AutomationRuleRow).fileter(AutomationRuleRow.location_id == location_id).first()

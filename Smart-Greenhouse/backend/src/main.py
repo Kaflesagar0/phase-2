@@ -8,7 +8,7 @@ from src.interfaces.api.locations import router as locations_router, devices_rou
 from src.interfaces.api.sensors import router as sensors_readings_router, devices_router as device_sampling_router 
 from scalar_fastapi import get_scalar_api_reference
 from src.interfaces.api.automation import router as automation_router
-
+from src.interfaces.api.overview import router as overview_router
 
 app = FastAPI(
     title="Smart Greenhouse API",
@@ -23,7 +23,10 @@ app.include_router(devices_router)
 origins = [origin.strip() for origin in settings.cors_origins.split(",") if origin.strip()]
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=[
+        "http://localhost:5174",
+        "http://127.0.0.1:5174",
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -54,3 +57,4 @@ app.include_router(location_devices_router)
 app.include_router(sensors_readings_router)
 app.include_router(device_sampling_router)
 app.include_router(automation_router)
+app.include_router(overview_router)

@@ -266,3 +266,63 @@ export async function updateDeviceSampling(
     throw new Error(errorData.detail || "Failed to update sampling settings");
   }
 }
+
+
+// --- Phase 7: Overview DTOs & API ---
+
+export interface LocationMetadataDto {
+  id: string;
+  name: string;
+}
+
+export interface DeviceCountDto {
+  sensor: number;
+  actuator: number;
+}
+
+export interface ZoneDeviceDto {
+  id: string;
+  device_type: string;
+  role: string;
+  display_name: string | null;
+}
+
+export interface LatestReadingDto {
+  device_id: string;
+  value: number;
+  unit: string;
+  recorded_at: string;
+  tracking_enabled: boolean;
+  sampling_interval_seconds: number;
+}
+
+export interface ZoneOverviewDto {
+  id: string;
+  name: string;
+  moisture_threshold_low: number;
+  moisture_threshold_high: number;
+  devices: ZoneDeviceDto[];
+  latest_readings: LatestReadingDto[];
+}
+
+export interface RecommendationDto {
+  action: string;
+  reason: string;
+}
+
+export interface LocationOverviewDto {
+  location: LocationMetadataDto;
+  device_counts: DeviceCountDto;
+  zones: ZoneOverviewDto[];
+  strategy_key: string | null;
+  last_recommendation: RecommendationDto | null;
+}
+
+export async function fetchLocationOverview(locationId: string): Promise<LocationOverviewDto> {
+  const res = await fetch(`${API_BASE_URL}/api/locations/${locationId}/overview`);
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ detail: "Failed to fetch overview" }));
+    throw new Error(err.detail || "Failed to fetch overview");
+  }
+  return res.json();
+}

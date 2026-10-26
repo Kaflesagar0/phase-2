@@ -36,3 +36,21 @@ class ReadingRepository:
             .order_by(ReadingRow.recorded_at.desc())
             .first()
         )
+
+    def get_newest_readings_for_devices(self, device_ids: list[UUID]) -> dict[UUID, ReadingRow]:
+        if not device_ids:
+            return {}
+        
+        subq = (
+            self.db.query(ReadingRow)
+            .filter(ReadingRow.device_id.in_(device_ids))
+            .order_by(ReadingRow.device_id, ReadingRow.recorded_at.desc())
+            .distinct(ReadingRow.device_id)
+            .subquery()
+        )
+        reading_rows = self.db.query(ReadingRow).join(
+            subq,
+            (ReadingRow.device_id == subq.c.device_id) & (ReadingRow.recorded_at == subq.c.recorded_at)
+        ).all()
+
+        return {r.device_id: r for r in reading_rows}
