@@ -8,3 +8,5 @@ class DeviceDto(BaseModel):
     device_family: str
     display_name: str
     default_config: dict
+    state: str | None = None
+    allowed_commands: list[str] = []

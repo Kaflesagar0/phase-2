@@ -1,11 +1,13 @@
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
-
+from pydantic import BaseModel
+from uuid import UUID
 from src.infrastructure.db import get_db
 from src.infrastructure.persistence.device_repository import DeviceRepository
 from src.application.devices.family_service import FamilyService
 from src.application.devices.dto import DeviceDto
 from src.application.devices.mappers import map_device_to_dto
+from src.domain.actuators.service import ActuatorStateService
 
 router = APIRouter(prefix="/api/devices", tags=["Devices"])
 
@@ -32,3 +34,21 @@ def provision_family(
         return [map_device_to_dto(d) for d in created_devices]
     except ValueError as err:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(err) )
+
+
+class TransitionRequestDto(BaseModel):
+    target: str
+
+@router.post("/api/devices/{id}/transition", status_code=status.HTTP_200_OK)
+def transition_actuator_state(
+    id: UUID,
+    payload: TransitionRequestDto,
+    db: Session = Depends(get_db),
+):
+    service = ActuatorStateService(db)
+    context = service.transition_state(id, payload.target)
+    return {
+        "device_id": context.device_id,
+        "state": context.current_state,
+        "allowed_commands": context.allowed_commands,
+    }

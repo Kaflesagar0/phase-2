@@ -24,12 +24,14 @@ export interface CreateSensorPayload {
 export interface DeviceDto {
   id: string;
   device_type: string;
-  role: string;
+  role: "sensor"  | "actuator";
   device_family: string;
   display_name: string;
   default_config: Record<string, unknown>;
   zone_id?: string | null;
   location_id?: string | null;
+  state?: string;
+  allowed_commands?: string[];
 }
 
 export interface ZoneDto {
@@ -325,4 +327,17 @@ export async function fetchLocationOverview(locationId: string): Promise<Locatio
     throw new Error(err.detail || "Failed to fetch overview");
   }
   return res.json();
+}
+
+
+export async function transitionActuator(deviceId: string, targetState: string): Promise<void> {
+  const res = await fetch(`${API_BASE_URL}/api/devices/${deviceId}/transition`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json"},
+    body: JSON.stringify({ target: targetState}),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ detail: "Transition failed"}) );
+    throw new Error(err.detail || "Transition failed");
+  }
 }
