@@ -1,6 +1,6 @@
 import uuid
 from datetime import datetime
-from sqlalchemy import String, DateTime, Boolean, Numeric, Integer, text, ForeignKey, Index
+from sqlalchemy import String, DateTime, Boolean, Numeric, Integer, Text, text, ForeignKey, Index
 from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from src.infrastructure.persistence.base import Base
@@ -137,7 +137,7 @@ class DeviceRow(Base):
         ForeignKey("locations.id", ondelete="SET NULL"),
         nullable=True,
     )
-    # ----------------------------------------------------
+    
 
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
@@ -161,6 +161,10 @@ class DeviceRow(Base):
         "ActuatorStateRow", back_populates="device", cascade="all, delete-orphan", uselist=False
     )
 
+    execution_logs: Mapped[list["ActuatorExecutionLogRow"]] = relationship(
+        "ActuatorExecutionLogRow", back_populates="device", cascade="all, delete-orphan"
+    )
+
 class ActuatorStateRow(Base):
     __tablename__ = "actuator_states"
 
@@ -181,3 +185,29 @@ class ActuatorStateRow(Base):
     )
 
     device: Mapped["DeviceRow"] = relationship("DeviceRow", back_populates="actuator_state")
+
+class ActuatorExecutionLogRow(Base):
+    __tablename__ = "actuator_execution_log"
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        primary_key=True,
+        default=uuid.uuid4,
+        server_default=text("gen_random_uuid()"),
+    )
+    device_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("devices.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    success: Mapped[bool] = mapped_column(Boolean, nullable=False)
+    policy_applied: Mapped[list] = mapped_column(JSONB, nullable=False, server_default=text("'[]'::jsonb"))
+    message: Mapped[str | None] = mapped_column(Text, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        server_default=text("now()"),
+        nullable=False,
+    )
+
+    device: Mapped["DeviceRow"] = relationship("DeviceRow", back_populates="execution_logs")

@@ -98,12 +98,37 @@ export function DeviceList() {
                          <pre className="text-[10px] text-slate-600 bg-slate-50 p-2 rounded-md border border-slate-100 overflow-x-auto">
                             {JSON.stringify(d.default_config, null, 2)}
                          </pre>
+                         {d.role === "actuator" && (
+      <div className="mt-2 pt-2 border-t border-slate-100 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-semibold text-slate-500">State:</span>
+          <span
+            className={`px-2 py-0.5 text-xs font-mono font-bold uppercase rounded-full ${
+              d.state === "running"
+                ? "bg-emerald-100 text-emerald-800 border border-emerald-200"
+                : d.state === "error"
+                ? "bg-red-100 text-red-800 border border-red-200"
+                : d.state === "maintenance"
+                ? "bg-amber-100 text-amber-800 border border-amber-200"
+                : "bg-slate-100 text-slate-700 border border-slate-200"
+            }`}
+          >
+            {d.state || "idle"}
+          </span>
+        </div>
+        <div className="text-[11px] text-slate-400 font-mono">
+          Allowed: {d.allowed_commands?.join(", ") || "none"}
+        </div>
+      </div>
+    )}
                      </div>
                    ))}
                 </div>
               )}
             </div>
         );
+
+        
 
     }
        
